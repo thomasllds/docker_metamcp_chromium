@@ -6,13 +6,20 @@ USER root
 
 # 1. Installation de Chromium et Xvfb (indispensable pour 'real-browser' en mode headless)
 # On installe aussi les polices pour éviter les carrés bizarres sur les captures
-RUN apt-get update && apt-get install -y \
-    chromium \
-    chromium-sandbox \
-    xvfb \
-    fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        xvfb \
+        fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf; \
+    if apt-get install -y --no-install-recommends chromium; then \
+        true; \
+    else \
+        apt-get install -y --no-install-recommends chromium-browser; \
+    fi; \
+    if [ ! -x /usr/bin/chromium ] && [ -x /usr/bin/chromium-browser ]; then \
+        ln -s /usr/bin/chromium-browser /usr/bin/chromium; \
+    fi; \
+    rm -rf /var/lib/apt/lists/*
 
 # 2. Définition des variables d'environnement pour Puppeteer
 # Cela dit à ton MCP server où trouver le chrome qu'on vient d'installer
