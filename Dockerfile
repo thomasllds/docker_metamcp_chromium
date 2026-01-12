@@ -6,13 +6,31 @@ USER root
 
 # 1. Installation de Chromium et Xvfb (indispensable pour 'real-browser' en mode headless)
 # On installe aussi les polices pour éviter les carrés bizarres sur les captures
-RUN apt-get update && apt-get install -y \
-    chromium \
-    chromium-sandbox \
-    xvfb \
-    fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        gnupg \
+        wget \
+        xvfb \
+        fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf; \
+    if apt-get install -y --no-install-recommends chromium; then \
+        true; \
+    elif apt-get install -y --no-install-recommends chromium-browser; then \
+        true; \
+    else \
+        wget -qO- https://dl.google.com/linux/linux_signing_key.pub \
+          | gpg --dearmor -o /usr/share/keyrings/google-linux.gpg; \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/google-linux.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+          > /etc/apt/sources.list.d/google-chrome.list; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends google-chrome-stable; \
+        ln -s /usr/bin/google-chrome /usr/bin/chromium; \
+    fi; \
+    if [ ! -x /usr/bin/chromium ] && [ -x /usr/bin/chromium-browser ]; then \
+        ln -s /usr/bin/chromium-browser /usr/bin/chromium; \
+    fi; \
+    rm -rf /var/lib/apt/lists/*
 
 # 2. Définition des variables d'environnement pour Puppeteer
 # Cela dit à ton MCP server où trouver le chrome qu'on vient d'installer
