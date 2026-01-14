@@ -9,23 +9,12 @@ USER root
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        ca-certificates \
-        gnupg \
-        wget \
         xvfb \
         fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf; \
     if apt-get install -y --no-install-recommends chromium; then \
         true; \
-    elif apt-get install -y --no-install-recommends chromium-browser; then \
-        true; \
     else \
-        wget -qO- https://dl.google.com/linux/linux_signing_key.pub \
-          | gpg --dearmor -o /usr/share/keyrings/google-linux.gpg; \
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/google-linux.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-          > /etc/apt/sources.list.d/google-chrome.list; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends google-chrome-stable; \
-        ln -s /usr/bin/google-chrome /usr/bin/chromium; \
+        apt-get install -y --no-install-recommends chromium-browser; \
     fi; \
     if [ ! -x /usr/bin/chromium ] && [ -x /usr/bin/chromium-browser ]; then \
         ln -s /usr/bin/chromium-browser /usr/bin/chromium; \
