@@ -10,19 +10,15 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         xvfb \
-        ca-certificates wget gnupg; \
-    apt-get install -y --no-install-recommends \
         fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
-        fonts-liberation \
-        || true; \
+        ca-certificates wget gnupg; \
     if apt-get install -y --no-install-recommends chromium; then \
         true; \
     elif apt-get install -y --no-install-recommends chromium-browser; then \
         true; \
     else \
         wget -q -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; \
-        apt-get install -y --no-install-recommends /tmp/google-chrome.deb \
-        || (apt-get -f install -y --no-install-recommends && apt-get install -y --no-install-recommends /tmp/google-chrome.deb); \
+        apt-get install -y --no-install-recommends /tmp/google-chrome.deb; \
         rm /tmp/google-chrome.deb; \
     fi; \
     if [ ! -x /usr/bin/chromium ] && [ -x /usr/bin/chromium-browser ]; then \
